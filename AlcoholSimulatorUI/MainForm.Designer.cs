@@ -49,6 +49,7 @@
             this.tbWeight = new System.Windows.Forms.TextBox();
             this.btnSelect = new System.Windows.Forms.Button();
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.tbWeight2 = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
@@ -56,7 +57,7 @@
             this.btnPlus = new System.Windows.Forms.Button();
             this.lbIn = new System.Windows.Forms.ListBox();
             this.lbOut = new System.Windows.Forms.ListBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.editBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlcohols)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -90,7 +91,7 @@
             this.dgvAlcohols.RowTemplate.ReadOnly = true;
             this.dgvAlcohols.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.dgvAlcohols.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgvAlcohols.Size = new System.Drawing.Size(866, 466);
+            this.dgvAlcohols.Size = new System.Drawing.Size(878, 585);
             this.dgvAlcohols.TabIndex = 2;
             // 
             // tabControl1
@@ -156,6 +157,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.editBtn);
             this.tabPage2.Controls.Add(this.label3);
             this.tabPage2.Controls.Add(this.comboBox1);
             this.tabPage2.Controls.Add(this.btnSort);
@@ -325,6 +327,14 @@
             this.tabPage5.Text = "Поиск решения";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(631, 7);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(0, 16);
+            this.label5.TabIndex = 9;
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -389,13 +399,15 @@
             this.lbOut.Size = new System.Drawing.Size(400, 516);
             this.lbOut.TabIndex = 2;
             // 
-            // label5
+            // editBtn
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(631, 7);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(0, 16);
-            this.label5.TabIndex = 9;
+            this.editBtn.Location = new System.Drawing.Point(7, 331);
+            this.editBtn.Name = "editBtn";
+            this.editBtn.Size = new System.Drawing.Size(428, 46);
+            this.editBtn.TabIndex = 5;
+            this.editBtn.Text = "Управление коктейлями";
+            this.editBtn.UseVisualStyleBackColor = true;
+            this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
             // 
             // MainForm
             // 
@@ -452,6 +464,7 @@
         private System.Windows.Forms.TextBox tbWeight2;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button editBtn;
     }
 }
 

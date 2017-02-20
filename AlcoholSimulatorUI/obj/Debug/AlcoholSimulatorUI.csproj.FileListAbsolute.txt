@@ -35,3 +35,5 @@ D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulat
 D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulatorUI.MainForm.resources
 D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulatorUI.Properties.Resources.resources
 D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulatorUI.csproj.GenerateResource.Cache
+D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulatorUI.Configuration.resources
+D:\AlcoholSimulatorUI\AlchoholCalcUI\AlcoholSimulatorUI\obj\Debug\AlcoholSimulatorUI.EditTarget.resources

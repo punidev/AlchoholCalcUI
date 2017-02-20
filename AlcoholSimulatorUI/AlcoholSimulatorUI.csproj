@@ -70,7 +70,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class\Alcohols.cs" />
     <Compile Include="Class\Coctails.cs" />
+    <Compile Include="Configuration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration.Designer.cs">
+      <DependentUpon>Configuration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditTarget.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditTarget.Designer.cs">
+      <DependentUpon>EditTarget.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,9 +91,14 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Class\Ingredient.cs" />
-    <Compile Include="Class\IngredientInCoctail.cs" />
     <Compile Include="Class\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Configuration.resx">
+      <DependentUpon>Configuration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditTarget.resx">
+      <DependentUpon>EditTarget.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

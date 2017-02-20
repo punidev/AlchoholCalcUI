@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Windows.Forms;
+using AlcoholSimulatorUI.Class;
 
 namespace AlcoholSimulatorUI
 {
@@ -13,7 +14,9 @@ namespace AlcoholSimulatorUI
         {
             InitializeComponent();
         }
-        public Coctails data;
+        public Coctails Data;
+        public static List<User> Items;
+        public static List<User> NItems;
         public static List<Coctails> Plus = new List<Coctails>();
         public static SQLiteConnection Base = new SQLiteConnection($"Data Source={"Alcohol.db"};Version=3;");
 
@@ -37,18 +40,33 @@ namespace AlcoholSimulatorUI
             data.DataSource = ds.Tables[0].DefaultView;
         }
 
-        public static void GetCoctailsFromDb()
+        public static void GetAlcoholsFromDb()
         {
-            var sql = "SELECT * FROM Coctails";
+            const string sql = "SELECT * FROM Alcohols";
             var command = new SQLiteCommand(sql, Base);
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                var names = (string) reader["Ingredients"];
-                var ranks = (string) reader["Ranks"];
-                var parts = (string) reader["Parts"];
-                List<Ingredient> item = new List<Ingredient>();
-                for (int i = 0; i < names.Split(',').Length; i++)
+                Alcohols.Items.Add(new Alcohols
+                {
+                    Name = (string) reader["Name"],
+                    Rank = (string) reader["Rank"],
+                });
+            }
+        }
+
+        public static void GetCoctailsFromDb()
+        {
+            const string sql = "SELECT * FROM Coctails";
+            var command = new SQLiteCommand(sql, Base);
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var names = (string)reader["Ingredients"];
+                var ranks = (string)reader["Ranks"];
+                var parts = (string)reader["Parts"];
+                var item = new List<Ingredient>();
+                for (var i = 0; i < names.Split(',').Length; i++)
                 {
                     item.Add(new Ingredient
                     {
@@ -59,13 +77,14 @@ namespace AlcoholSimulatorUI
                 }
                 Coctails.Items.Add(new Coctails
                 {
-                    Name = (string) reader["Name"],
+                    Name = (string)reader["Name"],
                     Ingredient = item,
                     Cost = Convert.ToInt32(reader["Cost"]),
                     Quantity = Convert.ToInt32(reader["Quantity"])
                 });
             }
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -79,7 +98,7 @@ namespace AlcoholSimulatorUI
             lbIn.SelectionMode = lbOut.SelectionMode = SelectionMode.MultiExtended;
         }
 
-        public void Refresh()
+        public override void Refresh()
         {
             lbOut.DataSource = Plus.ToList();
         }
@@ -92,10 +111,6 @@ namespace AlcoholSimulatorUI
             items.AddRange(pointer.Ingredient);
             lbIngredients.DataSource = items.ToList();
         }
-
-        public static List<User> Items;
-        public static List<User> NItems;
-
         public void FindAlc(int weight)
         {
             Items = new List<User>();
@@ -113,15 +128,18 @@ namespace AlcoholSimulatorUI
                     Cost = t.Cost
                 });
             }
-            A(checkBox1.Checked ? Convert.ToInt32(tbMoney.Text) : 0, weight);
+            Algorythm(checkBox1.Checked ? Convert.ToInt32(tbMoney.Text) : 0, weight);
         }
 
 
-        public void A(int a, int weight)
+        public void Algorythm(int a, int weight)
         {
-            List<Ingredient> values = new List<Ingredient>();
+            var values = new List<Ingredient>();
             Items.Clear();
-            Items = User.Items.OrderBy(s => -s.Promille).ThenBy(s => s.Cost).ToList();
+            Items = User.Items
+                .OrderBy(s => -s.Promille)
+                .ThenBy(s => s.Cost)
+                .ToList();
             int quant = 0, cost = 0;
             foreach (var t in Items)
             {
@@ -141,15 +159,15 @@ namespace AlcoholSimulatorUI
             {
                 values.AddRange(s.Ingredient);
             }
-            lbOptimized.DataSource = checkBox1.Checked ? NItems.ToList() : Items.ToList();
-            TypeOfAlcoholIntoxication(User.Calculator(values, weight, quant, NItems.Count,
-                t => t.Rank*t.Part/NItems.Count));
+            lbOptimized.DataSource = checkBox1.Checked ? 
+                NItems.ToList() : Items.ToList();
+            TypeOfAlcoholIntoxication(
+                User.Calculator(values, weight, quant, NItems.Count, t => t.Rank*t.Part/NItems.Count));
             DisAssembly(values, t => t.Rank > 0);
             rtbLogs.Text += $"\nСумма коктейлей: {cost}";
         }
 
-        public void TypeOfAlcoholIntoxication(
-            double d)
+        public void TypeOfAlcoholIntoxication(double d)
         {
             string res = null;
 
@@ -176,7 +194,9 @@ namespace AlcoholSimulatorUI
                 rtbLogs.Text += "Только алкогольные напитки: \n";
                 foreach (var t in lst.Where(action).OrderBy(t => t.Name).ToList())
                 {
-                    rtbLogs.Text += $"Название - {t.Name} : Крепкость - {t.Rank*100}% : Доля в коктейле - {t.Part}\n";
+                    rtbLogs.Text += $"Название - {t.Name} : " +
+                                    $"Крепкость - {t.Rank*100}% : " +
+                                    $"Доля в коктейле - {t.Part}\n";
                 }
             }
             else
@@ -184,14 +204,17 @@ namespace AlcoholSimulatorUI
                 rtbLogs.Text += "Все напитки напитки: \n";
                 foreach (var t in lst)
                 {
-                    rtbLogs.Text += $"Название - {t.Name} : Крепкость - {t.Rank*100}% : Доля в коктейле - {t.Part}\n";
+                    rtbLogs.Text += $"Название - {t.Name} : " +
+                                    $"Крепкость - {t.Rank*100}% : " +
+                                    $"Доля в коктейле - {t.Part}\n";
                 }
             }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            label2.Visible = !checkBox1.Checked ? (tbMoney.Visible = false) : (tbMoney.Visible = true);
+            label2.Visible = !checkBox1.Checked ? 
+                (tbMoney.Visible = false) : (tbMoney.Visible = true);
         }
 
         private void btnSelect_Click(object sender, EventArgs e)
@@ -205,19 +228,27 @@ namespace AlcoholSimulatorUI
             switch (comboBox1.SelectedItem.ToString())
             {
                 case "По цене":
-                    lbCoctails.DataSource = Coctails.Items.OrderBy(x=>-x.Cost).ToList();
+                    lbCoctails.DataSource = Coctails.Items
+                        .OrderBy(x=>-x.Cost)
+                        .ToList();
                     break;
                 case "По названию":
-                    lbCoctails.DataSource = Coctails.Items.OrderBy(x => x.Name).ToList();
+                    lbCoctails.DataSource = Coctails.Items
+                        .OrderBy(x => x.Name)
+                        .ToList();
                     break;
                 case "По объему":
-                    lbCoctails.DataSource = Coctails.Items.OrderBy(x => x.Quantity).ToList();
+                    lbCoctails.DataSource = Coctails.Items
+                        .OrderBy(x => x.Quantity)
+                        .ToList();
                     break;
                 case "По кол-ву ингредиентов":
-                    lbCoctails.DataSource = Coctails.Items.OrderBy(x => -x.Ingredient.Count).ToList();
+                    lbCoctails.DataSource = Coctails.Items
+                        .OrderBy(x => -x.Ingredient.Count)
+                        .ToList();
                     break;
                 default:
-                    MessageBox.Show("Не выбрано ничего");
+                    MessageBox.Show(@"Не выбрано ничего");
                     break;
             }
         }
@@ -227,8 +258,8 @@ namespace AlcoholSimulatorUI
         {
             foreach (var t in lbIn.SelectedItems.Cast<object>().ToList())
             {
-                data = (Coctails)t;
-                Plus.Add(data);
+                Data = (Coctails)t;
+                Plus.Add(Data);
             }
             Refresh();
         }
@@ -237,14 +268,14 @@ namespace AlcoholSimulatorUI
         {
             foreach (var t in lbOut.SelectedItems.Cast<object>().ToList())
             {
-                data = (Coctails)t;
-                Plus.Remove(data);
+                Data = (Coctails)t;
+                Plus.Remove(Data);
             }
             Refresh();
         }
         public void MultiplyCount(int weight)
         {
-            List<Ingredient> values = new List<Ingredient>();
+            var values = new List<Ingredient>();
             int cost = 0, quant = 0;
             foreach (var t in Plus)
             {
@@ -252,8 +283,10 @@ namespace AlcoholSimulatorUI
                     cost += t.Cost;
                     quant += t.Quantity;
             }
-            label5.Text =
-                $"Ваша доза опьянения - {User.Calculator(values, weight, quant, Plus.Count, t => t.Rank*t.Part/Plus.Count)}‰\nВы потратили - {cost} грн.";
+            Func<Ingredient, double> linq = t => t.Rank*t.Part/Plus.Count;
+            label5.Text = @"Ваша доза опьянения -" +
+                          $" {User.Calculator(values, weight, quant, Plus.Count, linq)}‰" +
+                          $"\nВы потратили - {cost} грн.";
         }
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -261,7 +294,21 @@ namespace AlcoholSimulatorUI
                 && Convert.ToInt32(tbWeight2.Text) > 0)
                 MultiplyCount(Convert.ToInt32(tbWeight2.Text));
             else
-                MessageBox.Show("Неверный формат!");
+                MessageBox.Show(@"Неверный формат!");
+        }
+
+        public void Refill()
+        {
+            Alcohols.Items.Clear();
+            GetAlcoholsFromDb();
+            GetCoctailsFromDb();
+            UpdateTab(dgvAlcohols, "Alcohols");
+            UpdateTab(dgvCoctails, "Coctails");
+        }
+
+        private void editBtn_Click(object sender, EventArgs e)
+        {
+            new Configuration {Owner = this, sql = Base}.ShowDialog();
         }
     }
 }
