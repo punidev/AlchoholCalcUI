@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Windows.Forms;
 using AlcoholSimulatorUI.Class;
+using AlcoholSimulatorUI.SQLRepository;
 
 namespace AlcoholSimulatorUI
 {
@@ -16,44 +17,41 @@ namespace AlcoholSimulatorUI
         private MainForm _parrent;
         private Coctails _coctail;
         private Alcohols _alcohols;
-        public SQLiteConnection sql { get; set; }
+        private AlcoholsRepository _alcoholRepository;
+        private CoctailsRepository _coctailsRepository;
+        public SQLiteConnection Sql { get; set; }
         public List<Ingredient> Items = new List<Ingredient>(); 
         private void Configuration_Load(object sender, EventArgs e)
         {
+            _alcoholRepository = new FormPointers(Sql).AlcoholsRepository;
+            _coctailsRepository = new FormPointers(Sql).CoctailsRepository;
             _parrent = (MainForm)Owner;
             Refresher();
         }
 
         public void Refresher()
         {
-            _parrent.Refill();
+            _parrent.UpdateGrid();
             lbAlco.DataSource = null;
-            lbAlco.DataSource = Alcohols.Items.ToList();
-            lbCoctails.DataSource = Coctails.Items.ToList();
+            lbAlco.DataSource = _alcoholRepository.GetAll();
+            lbCoctails.DataSource = _coctailsRepository.GetAll();
             lbAssembly.DataSource = Items.ToList();
         }
 
-        public static void Insert(string querry, SQLiteConnection s)
-        {
-            var command = new SQLiteCommand(querry, s);
-            command.ExecuteNonQuery();
-        }
         private void btnAddAlco_Click(object sender, EventArgs e)
         {
-            var querry = "INSERT " +
-                         "INTO Alcohols(Name, Rank) " +
-                         $"VALUES('{tbNameAlco.Text}','{tbRankAlco.Text}')";
-            Insert(querry, sql);
+            _alcoholRepository.Insert(new Alcohols
+            {
+                Name = tbNameAlco.Text,
+                Rank = tbRankAlco.Text
+            });
             Refresher();
         }
 
         private void btnDelAlco_Click(object sender, EventArgs e)
         {
             _alcohols = (Alcohols) lbAlco.SelectedItem;
-            var querry = "DELETE " +
-                         "FROM Alcohols " +
-                         $"WHERE Name='{_alcohols.Name}'";
-            Insert(querry, sql);
+            _alcoholRepository.Delete(_alcohols.Name);
             Refresher();
         }
 
@@ -65,31 +63,19 @@ namespace AlcoholSimulatorUI
                 Owner = this,
                 _Name = _alcohols.Name,
                 _Rank = Convert.ToDouble(_alcohols.Rank.Replace('.',','))
-            }.ShowDialog();
+            }
+            .ShowDialog();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            List<string> parts = new List<string>();
-            List<string> ranks = new List<string>();
-            List<string> ing = new List<string>();
-            foreach (var t in Items)
+            _coctailsRepository.Insert(new Coctails
             {
-                parts.Add(t.Part.ToString());
-                ranks.Add(t.Rank.ToString());
-                ing.Add(t.Name);
-            }
-            var querry =
-                "INSERT " +
-                "INTO Coctails(Name, Ingredients, Parts,Ranks, Quantity, Cost) " +
-                "VALUES(" +
-                $"'{tbNameCoc.Text}'," +
-                $"'{string.Join(", ", ing)}'," +
-                $"'{string.Join(" ", parts)}'," +
-                $"'{string.Join(" ", ranks)}'," +
-                $"'{tbQuantCoc.Text}'," +
-                $"'{tbCostCoc.Text}')";
-            Insert(querry, sql);
+                Name = tbNameCoc.Text,
+                Quantity = Convert.ToInt32(tbQuantCoc.Text),
+                Cost = Convert.ToInt32(tbCostCoc.Text),
+                Ingredient = Items
+            });
             Refresher();
         }
 
@@ -110,41 +96,36 @@ namespace AlcoholSimulatorUI
             _alcohols = (Alcohols)lbAssembly.SelectedItem;
             new EditTarget
             {
-                Owner = this,isEdit = true
-            }.ShowDialog();
+                Owner = this,
+                isEdit = true
+            }
+            .ShowDialog();
         }
 
         private void delSoloAlco_Click(object sender, EventArgs e)
         {
             _coctail = (Coctails)lbCoctails.SelectedItem;
-            var querry = $"DELETE FROM Coctails WHERE Name='{_coctail.Name}'";
-            Insert(querry, sql);
+            _coctailsRepository.Delete(_coctail.Name);
             Refresher();
         }
 
         private void btnEditCoctail_Click(object sender, EventArgs e)
         {
             _coctail = (Coctails) lbCoctails.SelectedItem;
-            List<string> parts = new List<string>();
-            List<string> ranks = new List<string>();
-            List<string> ing = new List<string>();
-            foreach (var t in _coctail.Ingredient)
+            _coctailsRepository.Update(new Coctails
             {
-                parts.Add(t.Part.ToString());
-                ranks.Add(t.Rank.ToString());
-                ing.Add(t.Name);
-            }
-            var querry =
-                "UPDATE Coctails " +
-                "SET " +
-                $"Name='{tbNameCoc.Text}'," +
-                $"Ingredients='{string.Join(", ", ing)}'," +
-                $"Parts='{string.Join(" ", parts)}'," +
-                $"Ranks='{string.Join(" ", ranks)}'," +
-                $"Quantity='{tbQuantCoc.Text}'," +
-                $"Cost='{tbCostCoc.Text}' " +
-                $"WHERE Name='{_coctail.Name}'";
-            Insert(querry, sql);
+                Name = tbNameCoc.Text,
+                Quantity = Convert.ToInt32(tbQuantCoc.Text),
+                Cost = Convert.ToInt32(tbCostCoc.Text),
+                Ingredient = _coctail.Ingredient
+            });
+            Refresher();
+        }
+
+        private void btnDelCoctail_Click(object sender, EventArgs e)
+        {
+            _coctail = (Coctails) lbCoctails.SelectedItem;
+            _coctailsRepository.Delete(_coctail.Name);
             Refresher();
         }
     }

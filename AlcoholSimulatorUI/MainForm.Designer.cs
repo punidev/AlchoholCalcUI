@@ -34,6 +34,7 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.dgvCoctails = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.editBtn = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.btnSort = new System.Windows.Forms.Button();
@@ -57,7 +58,6 @@
             this.btnPlus = new System.Windows.Forms.Button();
             this.lbIn = new System.Windows.Forms.ListBox();
             this.lbOut = new System.Windows.Forms.ListBox();
-            this.editBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlcohols)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -171,6 +171,16 @@
             this.tabPage2.Text = "Ингредиенты";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // editBtn
+            // 
+            this.editBtn.Location = new System.Drawing.Point(7, 331);
+            this.editBtn.Name = "editBtn";
+            this.editBtn.Size = new System.Drawing.Size(428, 46);
+            this.editBtn.TabIndex = 5;
+            this.editBtn.Text = "Управление коктейлями";
+            this.editBtn.UseVisualStyleBackColor = true;
+            this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -271,6 +281,7 @@
             this.tbMoney.Name = "tbMoney";
             this.tbMoney.Size = new System.Drawing.Size(151, 22);
             this.tbMoney.TabIndex = 4;
+            this.tbMoney.Text = "0";
             // 
             // checkBox1
             // 
@@ -399,16 +410,6 @@
             this.lbOut.Size = new System.Drawing.Size(400, 516);
             this.lbOut.TabIndex = 2;
             // 
-            // editBtn
-            // 
-            this.editBtn.Location = new System.Drawing.Point(7, 331);
-            this.editBtn.Name = "editBtn";
-            this.editBtn.Size = new System.Drawing.Size(428, 46);
-            this.editBtn.TabIndex = 5;
-            this.editBtn.Text = "Управление коктейлями";
-            this.editBtn.UseVisualStyleBackColor = true;
-            this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -450,8 +451,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbWeight;
         private System.Windows.Forms.Button btnSelect;
-        private System.Windows.Forms.ListBox lbOptimized;
-        private System.Windows.Forms.RichTextBox rtbLogs;
+        public System.Windows.Forms.ListBox lbOptimized;
+        public System.Windows.Forms.RichTextBox rtbLogs;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button btnSort;
@@ -463,7 +464,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox tbWeight2;
         private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.Label label5;
+        public System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button editBtn;
     }
 }

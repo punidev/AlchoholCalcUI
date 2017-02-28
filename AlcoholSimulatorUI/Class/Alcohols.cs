@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using AlcoholSimulatorUI.Infrastructure;
+using AlcoholSimulatorUI.SQLRepository;
 
 namespace AlcoholSimulatorUI.Class
 {
-    public class Alcohols
+    public class Alcohols : BaseEntity<int>
     {
-        public static List<Alcohols> Items = new List<Alcohols>();
         public string Name { get; set; }
         public string Rank { get; set; }
         public override string ToString()

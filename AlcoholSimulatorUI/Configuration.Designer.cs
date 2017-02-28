@@ -149,6 +149,7 @@
             this.btnDelCoctail.TabIndex = 8;
             this.btnDelCoctail.Text = "Удалить выбранный";
             this.btnDelCoctail.UseVisualStyleBackColor = true;
+            this.btnDelCoctail.Click += new System.EventHandler(this.btnDelCoctail_Click);
             // 
             // label4
             // 

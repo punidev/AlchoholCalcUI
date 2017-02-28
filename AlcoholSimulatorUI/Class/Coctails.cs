@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data.SQLite;
+using AlcoholSimulatorUI.Infrastructure;
 
 namespace AlcoholSimulatorUI.Class
 {
-    public class Coctails
+    public class Coctails : BaseEntity<int>
     {
-        public static List<Coctails> Items = new List<Coctails>();
         public string Name { get; set; }
         public List<Ingredient> Ingredient { get; set; }
         public int Quantity { get; set; }
@@ -15,27 +15,44 @@ namespace AlcoholSimulatorUI.Class
         {
             return $"Название - {Name}, объем - {Quantity}, цена - {Cost}";
         }
-    }
 
-    public class User : Coctails
-    {
-        public new static List<User> Items = new List<User>();
-        public int Weight { get; set; }
-        public double Promille { get; set; }
-        public static double Calculator(
-            List<Ingredient> list,
-            int weight,
-            int quant,
-            int count,
-            Func<Ingredient, double> action)
+        public static List<Ingredient> GetIngredients(SQLiteDataReader reader)
         {
-            double sumOfAlco = list.Sum(action);
-            var res = quant * sumOfAlco * 0.79 * 0.9 / (weight * 0.7);
-            return Math.Round(res, 3);
+            var names = (string)reader["Ingredients"];
+            var ranks = (string)reader["Ranks"];
+            var parts = (string)reader["Parts"];
+            var item = new List<Ingredient>();
+            for (var i = 0; i < names.Split(',').Length; i++)
+            {
+                item.Add(new Ingredient
+                {
+                    Name = names.Split(',')[i],
+                    Part = Convert.ToDouble(parts.Split(' ')[i]),
+                    Rank = Convert.ToDouble(ranks.Split(' ')[i])
+                });
+            }
+            return item;
         }
-        public override string ToString()
+
+        public static string GetString(List<Ingredient> ing, string search)
         {
-            return $"Название - {Name}, объем - {Quantity}, цена - {Cost}, промилле - {Promille}";
+            var lst = new List<string>();
+            foreach (var t in ing)
+            {
+                switch (search)
+                {
+                    case "Ingredients":
+                        lst.Add(t.Name);
+                        break;
+                    case "Parts":
+                        lst.Add(t.Part.ToString());
+                        break;
+                    case "Ranks":
+                        lst.Add(t.Rank.ToString());
+                        break;
+                }
+            }
+            return search == "Ingredients" ? string.Join(", ", lst) : string.Join(" ", lst);
         }
     }
 }

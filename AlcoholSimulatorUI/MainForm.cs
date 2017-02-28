@@ -4,7 +4,10 @@ using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Windows.Forms;
+using AlcoholSimulatorUI.Algorithms;
 using AlcoholSimulatorUI.Class;
+using AlcoholSimulatorUI.Infrastructure;
+using AlcoholSimulatorUI.SQLRepository;
 
 namespace AlcoholSimulatorUI
 {
@@ -15,92 +18,35 @@ namespace AlcoholSimulatorUI
             InitializeComponent();
         }
         public Coctails Data;
-        public static List<User> Items;
-        public static List<User> NItems;
-        public static List<Coctails> Plus = new List<Coctails>();
         public static SQLiteConnection Base = new SQLiteConnection($"Data Source={"Alcohol.db"};Version=3;");
-
-        public static void ConnectToDatabase(SQLiteConnection s)
-        {
-            s.Open();
-        }
-
-        public static void Insert(string querry, SQLiteConnection s)
-        {
-            var command = new SQLiteCommand(querry, s);
-            command.ExecuteNonQuery();
-        }
-
-        public void UpdateTab(DataGridView data, string _base)
+        public static void ConnectToDatabase(SQLiteConnection s) => s.Open();
+        public void UpdateTab(DataGridView data)
         {
             var ds = new DataSet();
-            var sql = $"Select * From {_base}";
+            var sql = $"Select * From {data.Name.Replace("dgv", null)}";
             var da = new SQLiteDataAdapter(sql, Base);
             da.Fill(ds);
             data.DataSource = ds.Tables[0].DefaultView;
         }
-
-        public static void GetAlcoholsFromDb()
+        public void UpdateGrid()
         {
-            const string sql = "SELECT * FROM Alcohols";
-            var command = new SQLiteCommand(sql, Base);
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Alcohols.Items.Add(new Alcohols
-                {
-                    Name = (string) reader["Name"],
-                    Rank = (string) reader["Rank"],
-                });
-            }
+            UpdateTab(dgvAlcohols);
+            UpdateTab(dgvCoctails);
         }
-
-        public static void GetCoctailsFromDb()
-        {
-            const string sql = "SELECT * FROM Coctails";
-            var command = new SQLiteCommand(sql, Base);
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                var names = (string)reader["Ingredients"];
-                var ranks = (string)reader["Ranks"];
-                var parts = (string)reader["Parts"];
-                var item = new List<Ingredient>();
-                for (var i = 0; i < names.Split(',').Length; i++)
-                {
-                    item.Add(new Ingredient
-                    {
-                        Name = names.Split(',')[i],
-                        Part = Convert.ToDouble(parts.Split(' ')[i]),
-                        Rank = Convert.ToDouble(ranks.Split(' ')[i])
-                    });
-                }
-                Coctails.Items.Add(new Coctails
-                {
-                    Name = (string)reader["Name"],
-                    Ingredient = item,
-                    Cost = Convert.ToInt32(reader["Cost"]),
-                    Quantity = Convert.ToInt32(reader["Quantity"])
-                });
-            }
-        }
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
             label2.Visible = tbMoney.Visible = false;
             ConnectToDatabase(Base);
-            UpdateTab(dgvAlcohols, "Alcohols");
-            UpdateTab(dgvCoctails, "Coctails");
-            GetCoctailsFromDb();
-            lbCoctails.DataSource = Coctails.Items.ToList();
-            lbIn.DataSource = Coctails.Items.ToList();
+            UpdateGrid();
+            lbCoctails.DataSource = new FormPointers(Base).CoctailsRepository.GetAll();
+            lbIn.DataSource = new FormPointers(Base).CoctailsRepository.GetAll();
             lbIn.SelectionMode = lbOut.SelectionMode = SelectionMode.MultiExtended;
         }
 
         public override void Refresh()
         {
-            lbOut.DataSource = Plus.ToList();
+            lbOut.DataSource = OptimizedData.MultiplyItems.ToList();
         }
 
         private void lbCoctails_SelectedIndexChanged(object sender, EventArgs e)
@@ -111,105 +57,7 @@ namespace AlcoholSimulatorUI
             items.AddRange(pointer.Ingredient);
             lbIngredients.DataSource = items.ToList();
         }
-        public void FindAlc(int weight)
-        {
-            Items = new List<User>();
-            NItems = new List<User>();
-            User.Items.Clear();
-            foreach (var t in Coctails.Items)
-            {
-                User.Items.Add(new User
-                {
-                    Ingredient = t.Ingredient,
-                    Name = t.Name,
-                    Quantity = t.Quantity,
-                    Weight = weight,
-                    Promille = User.Calculator(t.Ingredient, weight, t.Quantity, 1, a => a.Part*a.Rank),
-                    Cost = t.Cost
-                });
-            }
-            Algorythm(checkBox1.Checked ? Convert.ToInt32(tbMoney.Text) : 0, weight);
-        }
-
-
-        public void Algorythm(int a, int weight)
-        {
-            var values = new List<Ingredient>();
-            Items.Clear();
-            Items = User.Items
-                .OrderBy(s => -s.Promille)
-                .ThenBy(s => s.Cost)
-                .ToList();
-            int quant = 0, cost = 0;
-            foreach (var t in Items)
-            {
-                if (!Items.Any(v => a <= v.Cost))
-                {
-                    quant += t.Quantity;
-                    cost += t.Cost;
-                    NItems.Add(t);
-                    a -= t.Cost;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            foreach (var s in NItems)
-            {
-                values.AddRange(s.Ingredient);
-            }
-            lbOptimized.DataSource = checkBox1.Checked ? 
-                NItems.ToList() : Items.ToList();
-            TypeOfAlcoholIntoxication(
-                User.Calculator(values, weight, quant, NItems.Count, t => t.Rank*t.Part/NItems.Count));
-            DisAssembly(values, t => t.Rank > 0);
-            rtbLogs.Text += $"\nСумма коктейлей: {cost}";
-        }
-
-        public void TypeOfAlcoholIntoxication(double d)
-        {
-            string res = null;
-
-            if (d >= 0 && d < 1.0)
-                res = "Норма";
-            if (d >= 1.0 && d < 2.0)
-                res = "Легкая степень";
-            if (d >= 2.0 && d < 3.0)
-                res = "Средняя степень";
-            if (d >= 3.0 && d < 4.0)
-                res = "Тяжелая степень";
-            if (d >= 4.0)
-                res = "Cмертельная степень";
-
-            rtbLogs.Text += $"Ваша доза = {d} ‰\n{res} опъянения.";
-        }
-
-        public void DisAssembly(
-            List<Ingredient> lst,
-            Func<Ingredient, bool> action = null)
-        {
-            if (action != null)
-            {
-                rtbLogs.Text += "Только алкогольные напитки: \n";
-                foreach (var t in lst.Where(action).OrderBy(t => t.Name).ToList())
-                {
-                    rtbLogs.Text += $"Название - {t.Name} : " +
-                                    $"Крепкость - {t.Rank*100}% : " +
-                                    $"Доля в коктейле - {t.Part}\n";
-                }
-            }
-            else
-            {
-                rtbLogs.Text += "Все напитки напитки: \n";
-                foreach (var t in lst)
-                {
-                    rtbLogs.Text += $"Название - {t.Name} : " +
-                                    $"Крепкость - {t.Rank*100}% : " +
-                                    $"Доля в коктейле - {t.Part}\n";
-                }
-            }
-        }
+        
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -219,31 +67,47 @@ namespace AlcoholSimulatorUI
 
         private void btnSelect_Click(object sender, EventArgs e)
         {
+            var optimizedData = new OptimizedList(Base);
             rtbLogs.Text = null;
-            FindAlc(Convert.ToInt32(tbWeight.Text));
+            if (tbWeight.Text.Length != 0 && Convert.ToInt32(tbWeight.Text) > 0)
+            {
+                optimizedData.FindOptimizedAlcohol(
+                    Convert.ToInt32(tbWeight.Text), checkBox1.Checked, tbMoney.Text);
+
+                lbOptimized.DataSource = checkBox1.Checked
+                    ? OptimizedData.SecondaryItems.ToList()
+                    : OptimizedData.PrimaryItems.ToList();
+
+                rtbLogs.Text += ViewModels.Display();
+                OptimizedData.DisassemblyLogs.ForEach(delegate(string i) { rtbLogs.Text += i; });
+            }
+            else
+                MessageBox.Show(@"Неверный формат!");
         }
 
         private void btnSort_Click(object sender, EventArgs e)
         {
+            var coctailsList = new FormPointers(Base)
+                .CoctailsRepository.GetAll();
             switch (comboBox1.SelectedItem.ToString())
             {
                 case "По цене":
-                    lbCoctails.DataSource = Coctails.Items
+                    lbCoctails.DataSource = coctailsList
                         .OrderBy(x=>-x.Cost)
                         .ToList();
                     break;
                 case "По названию":
-                    lbCoctails.DataSource = Coctails.Items
+                    lbCoctails.DataSource = coctailsList
                         .OrderBy(x => x.Name)
                         .ToList();
                     break;
                 case "По объему":
-                    lbCoctails.DataSource = Coctails.Items
+                    lbCoctails.DataSource = coctailsList
                         .OrderBy(x => x.Quantity)
                         .ToList();
                     break;
                 case "По кол-ву ингредиентов":
-                    lbCoctails.DataSource = Coctails.Items
+                    lbCoctails.DataSource = coctailsList
                         .OrderBy(x => -x.Ingredient.Count)
                         .ToList();
                     break;
@@ -259,7 +123,7 @@ namespace AlcoholSimulatorUI
             foreach (var t in lbIn.SelectedItems.Cast<object>().ToList())
             {
                 Data = (Coctails)t;
-                Plus.Add(Data);
+                OptimizedData.MultiplyItems.Add(Data);
             }
             Refresh();
         }
@@ -269,46 +133,23 @@ namespace AlcoholSimulatorUI
             foreach (var t in lbOut.SelectedItems.Cast<object>().ToList())
             {
                 Data = (Coctails)t;
-                Plus.Remove(Data);
+                OptimizedData.MultiplyItems.Remove(Data);
             }
             Refresh();
         }
-        public void MultiplyCount(int weight)
-        {
-            var values = new List<Ingredient>();
-            int cost = 0, quant = 0;
-            foreach (var t in Plus)
-            {
-                    values.AddRange(t.Ingredient);
-                    cost += t.Cost;
-                    quant += t.Quantity;
-            }
-            Func<Ingredient, double> linq = t => t.Rank*t.Part/Plus.Count;
-            label5.Text = @"Ваша доза опьянения -" +
-                          $" {User.Calculator(values, weight, quant, Plus.Count, linq)}‰" +
-                          $"\nВы потратили - {cost} грн.";
-        }
+   
         private void btnSearch_Click(object sender, EventArgs e)
         {
             if (tbWeight2.Text.Length!=0
                 && Convert.ToInt32(tbWeight2.Text) > 0)
-                MultiplyCount(Convert.ToInt32(tbWeight2.Text));
+                label5.Text= new OptimizedList(Base).MultiplyCount(Convert.ToInt32(tbWeight2.Text));
             else
                 MessageBox.Show(@"Неверный формат!");
         }
 
-        public void Refill()
-        {
-            Alcohols.Items.Clear();
-            GetAlcoholsFromDb();
-            GetCoctailsFromDb();
-            UpdateTab(dgvAlcohols, "Alcohols");
-            UpdateTab(dgvCoctails, "Coctails");
-        }
-
         private void editBtn_Click(object sender, EventArgs e)
         {
-            new Configuration {Owner = this, sql = Base}.ShowDialog();
+            new Configuration {Owner = this, Sql = Base}.ShowDialog();
         }
     }
 }
