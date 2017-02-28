@@ -2,39 +2,39 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using AlcoholSimulatorUI.Infrastructure;
+using AlcoholSimulatorUI.SQLRepository;
 
 namespace AlcoholSimulatorUI.Class
 {
     public class Coctails : BaseEntity<int>
     {
+        public new int Id { get; set; }
         public string Name { get; set; }
-        public List<Ingredient> Ingredient { get; set; }
+        public int Recipeid { get; set; }
+        public List<Ingredients> Ingredient { get; set; }
         public int Quantity { get; set; }
         public int Cost { get; set; }
+        public int Type { get; set; }
+
         public override string ToString()
         {
-            return $"Название - {Name}, объем - {Quantity}, цена - {Cost}";
+            return $"{CoctailType(Type)} - {Name}, объем - {Quantity}, цена - {Cost}";
         }
 
-        public static List<Ingredient> GetIngredients(SQLiteDataReader reader)
+        private string CoctailType(int id)
         {
-            var names = (string)reader["Ingredients"];
-            var ranks = (string)reader["Ranks"];
-            var parts = (string)reader["Parts"];
-            var item = new List<Ingredient>();
-            for (var i = 0; i < names.Split(',').Length; i++)
+            switch (id)
             {
-                item.Add(new Ingredient
-                {
-                    Name = names.Split(',')[i],
-                    Part = Convert.ToDouble(parts.Split(' ')[i]),
-                    Rank = Convert.ToDouble(ranks.Split(' ')[i])
-                });
+                case 1:
+                    return "Шот";
+                case 2:
+                    return "Лонг";
+                default:
+                    return null;
             }
-            return item;
         }
 
-        public static string GetString(List<Ingredient> ing, string search)
+        public static string GetString(List<Ingredients> ing, string search)
         {
             var lst = new List<string>();
             foreach (var t in ing)

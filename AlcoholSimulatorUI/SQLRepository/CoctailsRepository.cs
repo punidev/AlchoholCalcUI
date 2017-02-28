@@ -7,7 +7,7 @@ using AlcoholSimulatorUI.Infrastructure.Interfaces;
 
 namespace AlcoholSimulatorUI.SQLRepository
 {
-    internal class CoctailsRepository : BaseRepository<int, Coctails>, ICoctailsRepository
+    internal class CoctailsRepository : BaseRepository<int, Coctails>, ICoctailsRepository<Coctails>
     {
 
         public CoctailsRepository(SQLiteConnection connection, SqlTransactionManager transactionManager)
@@ -16,17 +16,16 @@ namespace AlcoholSimulatorUI.SQLRepository
         public override int Insert(Coctails entity)
         {
             return ExecuteNonQuery(
-                "INSERT INTO Coctails(Name, Ingredients, Parts,Ranks, Quantity, Cost)" +
-                "values (@Name, @Ingredients, @Parts, @Ranks, @Quantity, @Cost)",
+                "INSERT INTO Coctails(RecipeId, Name,Quantity, Cost, Type)" +
+                "values (@RecipeId, @Name, @Quantity, @Cost, @Type)",
                 new SqlParameters
-                    {
-                        {"Name", entity.Name},
-                        {"Ingredients", Coctails.GetString(entity.Ingredient, "Ingredients")},
-                        {"Parts", Coctails.GetString(entity.Ingredient, "Parts")},
-                        {"Ranks", Coctails.GetString(entity.Ingredient, "Ranks")},
-                        {"Quantity", entity.Quantity},
-                        {"Cost", entity.Cost}
-                    }
+                {
+                    {"RecipeId", entity.Recipeid},
+                    {"Name", entity.Name},
+                    {"Quantity", entity.Quantity},
+                    {"Cost", entity.Cost},
+                    {"Type", entity.Type}
+                }
                 );
         }
 
@@ -35,16 +34,14 @@ namespace AlcoholSimulatorUI.SQLRepository
         public override bool Update(Coctails entity)
         {
             var res = ExecuteNonQuery(
-                    "UPDATE Coctails SET Name=@Name, Ingredients=@Ingredients, Parts=@Parts," +
-                    " Ranks=@Ranks, Quantity=@Quantity, Cost=@Cost  WHERE Name=@Name",
+                    "UPDATE Coctails SET RecipeId=@RecipeId, Name=@Name,Quantity=@Quantity, Cost=@Cost, Type=@Type  WHERE Name=@Name",
                     new SqlParameters
                     {
+                        {"RecipeId", entity.Recipeid},
                         {"Name", entity.Name},
-                        {"Ingredients", Coctails.GetString(entity.Ingredient,"Ingredients")},
-                        {"Parts", Coctails.GetString(entity.Ingredient,"Parts")},
-                        {"Ranks", Coctails.GetString(entity.Ingredient,"Ranks")},
                         {"Quantity", entity.Quantity},
-                        {"Cost", entity.Cost}
+                        {"Cost", entity.Cost},
+                        {"Type", entity.Type}
                     }
                 );
 
@@ -53,9 +50,13 @@ namespace AlcoholSimulatorUI.SQLRepository
 
         public int GetCount()
         {
-            return ExecuteScalar<int>("SELECT count(*) FROM Coctails");
+            return ExecuteScalar("SELECT count(*) FROM Coctails");
         }
 
+        public int GetSeqCount()
+        {
+            return ExecuteScalar("SELECT seq FROM sqlite_sequence WHERE Name='Coctails'");
+        }
         public Coctails GetById(int id)
         {
             return  ExecuteSingleRowSelect(
@@ -81,23 +82,17 @@ namespace AlcoholSimulatorUI.SQLRepository
             return ExecuteSelect("SELECT * FROM Coctails");
         }
 
-        public IList<Coctails> GetByCoctailId(int coctailId)
-        {
-            return base.ExecuteSelect(
-                "SELECT * FROM Coctails WHERE Id=@coctailId",
-                new SqlParameters { { "coctailId", coctailId } });
-        }
-
-       
-
         protected override Coctails DefaultRowMapping(SQLiteDataReader reader)
         {
             return new Coctails
             {
+                Id = Convert.ToInt32(reader["Id"]),
                 Name = (string) reader["Name"],
-                Ingredient = Coctails.GetIngredients(reader),
+                Recipeid = Convert.ToInt32(reader["RecipeId"]),
+                Ingredient = MainForm.GetIngredients(Convert.ToInt32(reader["Id"])),
                 Cost = Convert.ToInt32(reader["Cost"]),
-                Quantity = Convert.ToInt32(reader["Quantity"])
+                Quantity = Convert.ToInt32(reader["Quantity"]),
+                Type = Convert.ToInt32(reader["Type"])
             };
         }
     }

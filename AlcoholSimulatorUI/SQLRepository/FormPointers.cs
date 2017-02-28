@@ -8,13 +8,16 @@ namespace AlcoholSimulatorUI.SQLRepository
         private SQLiteConnection _sqLiteConnection;
         public CoctailsRepository CoctailsRepository { get; }
         public AlcoholsRepository AlcoholsRepository { get; }
+        public RecipeRepository RecipesRepository { get; }
 
         public FormPointers(SQLiteConnection s)
         {
             _sqLiteConnection = s;
             CoctailsRepository = new CoctailsRepository(_sqLiteConnection, 
                 new SqlTransactionManager(_sqLiteConnection));
-            AlcoholsRepository = new AlcoholsRepository(_sqLiteConnection, 
+            AlcoholsRepository = new AlcoholsRepository(_sqLiteConnection,
+                new SqlTransactionManager(_sqLiteConnection));
+            RecipesRepository = new RecipeRepository(_sqLiteConnection,
                 new SqlTransactionManager(_sqLiteConnection));
         }   
     }

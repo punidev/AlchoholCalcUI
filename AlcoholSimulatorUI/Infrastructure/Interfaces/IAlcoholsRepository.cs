@@ -3,8 +3,8 @@ using AlcoholSimulatorUI.Class;
 
 namespace AlcoholSimulatorUI.Infrastructure.Interfaces
 {
-    public interface IAlcoholsRepository : IBaseRepository<int, Alcohols>
+    public interface IAlcoholsRepository<T> : IBaseRepository<int, Alcohols>
     {
-        IList<Alcohols> GetByAlcoId(int alcoId);
+        T GetById(int id);
     }
 }

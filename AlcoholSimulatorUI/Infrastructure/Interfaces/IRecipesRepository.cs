@@ -7,7 +7,7 @@ using AlcoholSimulatorUI.Class;
 
 namespace AlcoholSimulatorUI.Infrastructure.Interfaces
 {
-    public interface ICoctailsRepository<T> : IBaseRepository<int, Coctails>
+    public interface IRecipesRepository <T>: IBaseRepository<int, Recipes>
     {
         T GetById(int id);
     }

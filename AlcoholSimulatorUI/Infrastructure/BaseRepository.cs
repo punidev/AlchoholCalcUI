@@ -16,12 +16,12 @@ namespace AlcoholSimulatorUI.Infrastructure
         }
 
 
-        protected T ExecuteScalar<T>(string sql, IDictionary<string, object> parameters = null)
+        protected int ExecuteScalar(string sql, IDictionary<string, object> parameters = null)
         {
             using (var command = new SQLiteCommand(sql, _connection, _transactionManager.CurrentTransaction))
             {
                 FillParameters(parameters, command);
-                return (T) command.ExecuteScalar();
+                return (int)(long) command.ExecuteScalar();
             }
         }
 

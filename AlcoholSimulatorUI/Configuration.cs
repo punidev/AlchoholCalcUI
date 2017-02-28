@@ -17,14 +17,17 @@ namespace AlcoholSimulatorUI
         private MainForm _parrent;
         private Coctails _coctail;
         private Alcohols _alcohols;
+        private Ingredients _igred;
         private AlcoholsRepository _alcoholRepository;
         private CoctailsRepository _coctailsRepository;
+        private RecipeRepository _recipeRepository;
         public SQLiteConnection Sql { get; set; }
-        public List<Ingredient> Items = new List<Ingredient>(); 
+        public List<Ingredients> Items = new List<Ingredients>(); 
         private void Configuration_Load(object sender, EventArgs e)
         {
             _alcoholRepository = new FormPointers(Sql).AlcoholsRepository;
             _coctailsRepository = new FormPointers(Sql).CoctailsRepository;
+            _recipeRepository = new FormPointers(Sql).RecipesRepository;
             _parrent = (MainForm)Owner;
             Refresher();
         }
@@ -69,13 +72,26 @@ namespace AlcoholSimulatorUI
 
         private void button2_Click(object sender, EventArgs e)
         {
+            var countIndex = _coctailsRepository.GetSeqCount();
             _coctailsRepository.Insert(new Coctails
             {
                 Name = tbNameCoc.Text,
                 Quantity = Convert.ToInt32(tbQuantCoc.Text),
                 Cost = Convert.ToInt32(tbCostCoc.Text),
-                Ingredient = Items
+                Ingredient = Items,
+                Type = cbType.SelectedIndex+1,
+                Recipeid = countIndex + 1
             });
+            foreach (var t in Items)
+            {
+                _recipeRepository.Insert(new Recipes
+                {
+                    AlcoId = _alcoholRepository.GetByName(t.Name[0] == ' ' ? t.Name.Remove(0, 1) : t.Name),
+                    RecipeId = countIndex + 1,
+                    Part = Convert.ToDouble(t.Part)
+                });
+            }
+            
             Refresher();
         }
 
@@ -83,12 +99,13 @@ namespace AlcoholSimulatorUI
         {
             var pointer = (Coctails)lbCoctails.SelectedItem;
             lbAssembly.DataSource = null;
-            var items = new List<Ingredient>();
+            var items = new List<Ingredients>();
             items.AddRange(pointer.Ingredient);
             lbAssembly.DataSource = items.ToList();
             tbCostCoc.Text = pointer.Cost.ToString();
             tbNameCoc.Text = pointer.Name;
             tbQuantCoc.Text = pointer.Quantity.ToString();
+            cbType.SelectedIndex = pointer.Type-1;
         }
 
         private void editSoloAlco_Click(object sender, EventArgs e)
@@ -104,8 +121,8 @@ namespace AlcoholSimulatorUI
 
         private void delSoloAlco_Click(object sender, EventArgs e)
         {
-            _coctail = (Coctails)lbCoctails.SelectedItem;
-            _coctailsRepository.Delete(_coctail.Name);
+            _igred = (Ingredients)lbAssembly.SelectedItem;
+            Items.Remove(_igred);
             Refresher();
         }
 
@@ -117,7 +134,8 @@ namespace AlcoholSimulatorUI
                 Name = tbNameCoc.Text,
                 Quantity = Convert.ToInt32(tbQuantCoc.Text),
                 Cost = Convert.ToInt32(tbCostCoc.Text),
-                Ingredient = _coctail.Ingredient
+                Ingredient = _coctail.Ingredient,
+                Type = cbType.SelectedIndex + 1
             });
             Refresher();
         }

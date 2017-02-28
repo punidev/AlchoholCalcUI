@@ -7,7 +7,7 @@ using AlcoholSimulatorUI.Infrastructure.Interfaces;
 
 namespace AlcoholSimulatorUI.SQLRepository
 {
-    internal class AlcoholsRepository : BaseRepository<int, Alcohols>, IAlcoholsRepository
+    internal class AlcoholsRepository : BaseRepository<int, Alcohols>, IAlcoholsRepository<Alcohols>
     {
 
         public AlcoholsRepository(SQLiteConnection connection, SqlTransactionManager transactionManager)
@@ -41,14 +41,20 @@ namespace AlcoholSimulatorUI.SQLRepository
 
         public int GetCount()
         {
-            return ExecuteScalar<int>("SELECT count(*) FROM Alcohols");
+            return ExecuteScalar("SELECT count(*) FROM Alcohols");
         }
 
         public Alcohols GetById(int id)
         {
             return ExecuteSingleRowSelect(
                    "SELECT * FROM Alcohols WHERE Id=@id",
-                   new SqlParameters{ { "id", id } });
+                   new SqlParameters { { "id", id } });
+        }
+        public int GetByName(string name)
+        {
+            return ExecuteScalar(
+                   "SELECT Id FROM Alcohols WHERE Name=@name",
+                   new SqlParameters { { "name", name } });
         }
         public bool Delete(string name)
         {
@@ -67,19 +73,11 @@ namespace AlcoholSimulatorUI.SQLRepository
             return base.ExecuteSelect("SELECT * FROM Alcohols");
         }
 
-        public IList<Alcohols> GetByAlcoId(int alcoId)
-        {
-            return base.ExecuteSelect(
-                "SELECT * FROM Alcohols WHERE Id=@alcoId",
-                new SqlParameters{{"alcoId", alcoId}}
-                );
-        }
-
-
         protected override Alcohols DefaultRowMapping(SQLiteDataReader reader)
         {
             return new Alcohols
             {
+                Id = Convert.ToInt32(reader["Id"]),
                 Name = (string)reader["Name"],
                 Rank = (string)reader["Rank"]
             };

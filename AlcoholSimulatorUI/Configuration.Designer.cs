@@ -53,6 +53,8 @@
             this.tbNameCoc = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.btnEditCoctail = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.cbType = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -145,7 +147,7 @@
             // 
             this.btnDelCoctail.Location = new System.Drawing.Point(366, 710);
             this.btnDelCoctail.Name = "btnDelCoctail";
-            this.btnDelCoctail.Size = new System.Drawing.Size(291, 41);
+            this.btnDelCoctail.Size = new System.Drawing.Size(582, 41);
             this.btnDelCoctail.TabIndex = 8;
             this.btnDelCoctail.Text = "Удалить выбранный";
             this.btnDelCoctail.UseVisualStyleBackColor = true;
@@ -154,7 +156,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(363, 342);
+            this.label4.Location = new System.Drawing.Point(363, 374);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(130, 16);
             this.label4.TabIndex = 9;
@@ -164,14 +166,17 @@
             // 
             this.lbCoctails.FormattingEnabled = true;
             this.lbCoctails.ItemHeight = 16;
-            this.lbCoctails.Location = new System.Drawing.Point(366, 361);
+            this.lbCoctails.Location = new System.Drawing.Point(366, 393);
             this.lbCoctails.Name = "lbCoctails";
-            this.lbCoctails.Size = new System.Drawing.Size(582, 340);
+            this.lbCoctails.Size = new System.Drawing.Size(582, 308);
             this.lbCoctails.TabIndex = 7;
             this.lbCoctails.SelectedIndexChanged += new System.EventHandler(this.lbCoctails_SelectedIndexChanged);
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnEditCoctail);
+            this.groupBox2.Controls.Add(this.cbType);
+            this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.delSoloAlco);
             this.groupBox2.Controls.Add(this.editSoloAlco);
             this.groupBox2.Controls.Add(this.lbAssembly);
@@ -185,7 +190,7 @@
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Location = new System.Drawing.Point(366, 6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(582, 333);
+            this.groupBox2.Size = new System.Drawing.Size(582, 365);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Добавить алкоголь";
@@ -265,7 +270,7 @@
             // 
             this.button2.Location = new System.Drawing.Point(297, 240);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(266, 78);
+            this.button2.Size = new System.Drawing.Size(266, 50);
             this.button2.TabIndex = 4;
             this.button2.Text = "Добавить";
             this.button2.UseVisualStyleBackColor = true;
@@ -289,20 +294,40 @@
             // 
             // btnEditCoctail
             // 
-            this.btnEditCoctail.Location = new System.Drawing.Point(657, 710);
+            this.btnEditCoctail.Location = new System.Drawing.Point(297, 296);
             this.btnEditCoctail.Name = "btnEditCoctail";
-            this.btnEditCoctail.Size = new System.Drawing.Size(291, 41);
+            this.btnEditCoctail.Size = new System.Drawing.Size(266, 54);
             this.btnEditCoctail.TabIndex = 10;
             this.btnEditCoctail.Text = "Изменить выбранный";
             this.btnEditCoctail.UseVisualStyleBackColor = true;
             this.btnEditCoctail.Click += new System.EventHandler(this.btnEditCoctail_Click);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(17, 326);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 16);
+            this.label8.TabIndex = 18;
+            this.label8.Text = "Цена:";
+            // 
+            // cbType
+            // 
+            this.cbType.FormattingEnabled = true;
+            this.cbType.Items.AddRange(new object[] {
+            "Шот",
+            "Лонг",
+            "Коктейль"});
+            this.cbType.Location = new System.Drawing.Point(100, 326);
+            this.cbType.Name = "cbType";
+            this.cbType.Size = new System.Drawing.Size(191, 24);
+            this.cbType.TabIndex = 19;
             // 
             // Configuration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(960, 763);
-            this.Controls.Add(this.btnEditCoctail);
             this.Controls.Add(this.btnDelCoctail);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.lbCoctails);
@@ -350,5 +375,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button delSoloAlco;
         private System.Windows.Forms.Button editSoloAlco;
+        private System.Windows.Forms.ComboBox cbType;
+        private System.Windows.Forms.Label label8;
     }
 }

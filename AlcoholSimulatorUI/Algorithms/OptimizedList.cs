@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
-using System.Windows.Forms;
 using AlcoholSimulatorUI.Class;
 using AlcoholSimulatorUI.SQLRepository;
 
@@ -40,7 +39,7 @@ namespace AlcoholSimulatorUI.Algorithms
 
         public double Algorithm(int fullMoneyEquivalent, int weight, bool isChecked)
         {
-            var values = new List<Ingredient>();
+            var values = new List<Ingredients>();
             OptimizedData.PrimaryItems.Clear();
             OptimizedData.PrimaryItems = User.Items
                 .OrderBy(s => -s.Promille)
@@ -91,8 +90,8 @@ namespace AlcoholSimulatorUI.Algorithms
         }
 
         public string DisAssembly(
-            List<Ingredient> lst,
-            Func<Ingredient, bool> action = null)
+            List<Ingredients> lst,
+            Func<Ingredients, bool> action = null)
         {
             if (action != null)
             {
@@ -104,20 +103,17 @@ namespace AlcoholSimulatorUI.Algorithms
                 }
                 return "Только алкогольные напитки: \n";
             }
-            else
+            foreach (var t in lst)
             {
-                foreach (var t in lst)
-                {
-                    OptimizedData.DisassemblyLogs.Add($"Название - {t.Name} : " +
-                                                      $"Крепкость - {t.Rank * 100}% : " +
-                                                      $"Доля в коктейле - {t.Part}\n");
-                }
-                return "Все напитки напитки: \n";
+                OptimizedData.DisassemblyLogs.Add($"Название - {t.Name} : " +
+                                                  $"Крепкость - {t.Rank * 100}% : " +
+                                                  $"Доля в коктейле - {t.Part}\n");
             }
+            return "Все напитки напитки: \n";
         }
         public string MultiplyCount(int weight)
         {
-            var values = new List<Ingredient>();
+            var values = new List<Ingredients>();
             int cost = 0, quant = 0;
             foreach (var t in OptimizedData.MultiplyItems)
             {
@@ -125,7 +121,7 @@ namespace AlcoholSimulatorUI.Algorithms
                 cost += t.Cost;
                 quant += t.Quantity;
             }
-            Func<Ingredient, double> linq = t => t.Rank * t.Part / OptimizedData.MultiplyItems.Count;
+            Func<Ingredients, double> linq = t => t.Rank * t.Part / OptimizedData.MultiplyItems.Count;
             return @"Ваша доза опьянения -" +
                           $" {MedicalFormules.Calculator(values, weight, quant, OptimizedData.MultiplyItems.Count, linq)}‰" +
                           $"\nВы потратили - {cost} грн.";

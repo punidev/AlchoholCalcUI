@@ -11,7 +11,7 @@ namespace AlcoholSimulatorUI
         {
             InitializeComponent();
         }
-        private Ingredient ing;
+        private Ingredients ing;
         private Configuration _conf;
         public string _Name { get; set; }
         public double _Rank { get; set; }
@@ -23,7 +23,7 @@ namespace AlcoholSimulatorUI
             if (isEdit)
             {
                 Text = @"Изменить";
-                ing = (Ingredient)_conf.lbAssembly.SelectedItem;
+                ing = (Ingredients)_conf.lbAssembly.SelectedItem;
                 tbNameAlco.Text = ing.Name;
                 tbRankAlco.Text = ing.Rank
                     .ToString(CultureInfo.InvariantCulture)
@@ -49,7 +49,7 @@ namespace AlcoholSimulatorUI
         {
             if (!isEdit)
             {
-                ing = new Ingredient();
+                ing = new Ingredients();
                 _conf.Items.Add(ing);
             }
             ing.Name = tbNameAlco.Text;

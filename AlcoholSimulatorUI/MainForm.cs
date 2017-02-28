@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using AlcoholSimulatorUI.Algorithms;
 using AlcoholSimulatorUI.Class;
@@ -18,7 +19,8 @@ namespace AlcoholSimulatorUI
             InitializeComponent();
         }
         public Coctails Data;
-        public static SQLiteConnection Base = new SQLiteConnection($"Data Source={"Alcohol.db"};Version=3;");
+        public static SQLiteConnection Base = new SQLiteConnection($"Data Source={"Alcohol2.db"};Version=3;");
+
         public static void ConnectToDatabase(SQLiteConnection s) => s.Open();
         public void UpdateTab(DataGridView data)
         {
@@ -43,7 +45,6 @@ namespace AlcoholSimulatorUI
             lbIn.DataSource = new FormPointers(Base).CoctailsRepository.GetAll();
             lbIn.SelectionMode = lbOut.SelectionMode = SelectionMode.MultiExtended;
         }
-
         public override void Refresh()
         {
             lbOut.DataSource = OptimizedData.MultiplyItems.ToList();
@@ -53,7 +54,7 @@ namespace AlcoholSimulatorUI
         {
             var pointer = (Coctails) lbCoctails.SelectedItem;
             lbIngredients.DataSource = null;
-            var items = new List<Ingredient>();
+            var items = new List<Ingredients>();
             items.AddRange(pointer.Ingredient);
             lbIngredients.DataSource = items.ToList();
         }
@@ -83,6 +84,17 @@ namespace AlcoholSimulatorUI
             }
             else
                 MessageBox.Show(@"Неверный формат!");
+        }
+        public static List<Ingredients> GetIngredients(int id)
+        {
+            var lst = new FormPointers(Base).AlcoholsRepository;
+            var rlst = new FormPointers(Base).RecipesRepository.GetAllAlcohols(id);
+            return rlst.Select(t => new Ingredients
+            {
+                Name = lst.GetById(t.AlcoId).Name,
+                Part = t.Part,
+                Rank = Convert.ToDouble(lst.GetById(t.AlcoId).Rank.Replace('.', ','))
+            }).ToList();
         }
 
         private void btnSort_Click(object sender, EventArgs e)
